@@ -1,4 +1,4 @@
-function convert() {
+async function convert() {
 
     const value = Number(
         document.getElementById("value").value
@@ -17,27 +17,37 @@ function convert() {
         return;
     }
 
-    let convertedValue;
+    try {
 
-    if (currency === "usd") {
+        const response = await fetch(
+            `/api/converter?value=${value}&currency=${currency}`
+        );
 
-        // Cotação de exemplo
-        const dollar = 5.40;
+        const data = await response.json();
 
-        convertedValue = value / dollar;
+        if (!response.ok) {
+
+            result.textContent = data.error;
+
+            return;
+        }
+
+        if (currency === "usd") {
+
+            result.textContent =
+                `US$ ${data.result.toFixed(2)}`;
+
+        } else if (currency === "eur") {
+
+            result.textContent =
+                `€ ${data.result.toFixed(2)}`;
+        }
+
+    } catch (error) {
+
+        console.error(error);
 
         result.textContent =
-            `US$ ${convertedValue.toFixed(2)}`;
-
-    } else if (currency === "eur") {
-
-        // Cotação de exemplo
-        const euro = 6.30;
-
-        convertedValue = value / euro;
-
-        result.textContent =
-            `€ ${convertedValue.toFixed(2)}`;
+            "Erro ao conectar com o servidor.";
     }
-
 }
